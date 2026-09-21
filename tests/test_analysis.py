@@ -7,6 +7,7 @@ occupation-level measures.
 
 from __future__ import annotations
 
+import statistics
 import sys
 import unittest
 from pathlib import Path
@@ -1860,3 +1861,248 @@ class TestUncertainty(unittest.TestCase):
         for name, s in r["scenarios"].items():
             self.assertLessEqual(s["p05"], s["mean"])
             self.assertLessEqual(s["mean"], s["p95"])
+
+
+# --------------------------------------------------------------------------- #
+# the regression engine
+#
+# The reference values below were produced by statsmodels 0.15.0 / numpy 2.5.3
+# on the fixture in this file (OLS with cov_type="HC1" and "cluster", WLS with
+# cov_type="HC1", all with use_t=True) and are checked in as constants, because
+# CI installs stdlib only and the engine has to be verifiable there. The full
+# comparison - 36 checks including VIF, standardised coefficients and the
+# fixed-effects equivalence on 400 simulated rows - is what these constants are
+# a frozen sample of.
+# --------------------------------------------------------------------------- #
+
+from onet_scraper import regress  # noqa: E402
+
+REG_Y = [12.0, 15.5, 9.25, 21.0, 18.75, 11.5, 24.0, 16.25, 13.0, 27.5, 19.25, 14.75]
+REG_X1 = [1.0, 2.5, 0.5, 4.0, 3.5, 1.5, 5.0, 3.0, 2.0, 6.0, 4.5, 2.25]
+REG_X2 = [200.0, 450.0, 125.0, 900.0, 725.0, 300.0, 1100.0, 600.0, 375.0,
+          1400.0, 850.0, 425.0]
+REG_X3 = [0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0]
+REG_G = ["a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", "d"]
+REG_W = [1.0, 2.0, 1.0, 3.0, 1.0, 2.0, 4.0, 1.0, 2.0, 3.0, 1.0, 2.0]
+REG_TERMS = ["(intercept)", "x1", "x2", "x3"]
+
+HC1_COEF = [8.2270259155, 0.0456757387, 0.0137484196, -0.0054907907]
+HC1_SE = [0.697495765, 1.1744754217, 0.0049578459, 0.5706607951]
+HC1_R2 = 0.9840273041
+HC1_F = 261.10086418
+CLUSTER_SE = [0.4363862649, 1.0229583424, 0.0045392323, 0.5180439459]
+CLUSTER_F = 500.63047785
+WLS_COEF = [8.0167536913, 0.5777862305, 0.0116598084, -0.0363255991]
+WLS_SE = [0.6747132692, 1.2702406922, 0.0052354289, 0.5429279849]
+WLS_R2 = 0.989090288
+
+
+def _reg_design():
+    return [[1.0, a, b, c] for a, b, c in zip(REG_X1, REG_X2, REG_X3)]
+
+
+class TestRegressionEngine(unittest.TestCase):
+    def test_hc1_matches_statsmodels(self):
+        fit = regress.ols(REG_Y, _reg_design(), REG_TERMS)
+        for got, want in zip(fit.coef, HC1_COEF):
+            self.assertAlmostEqual(got, want, places=8)
+        for got, want in zip(fit.se, HC1_SE):
+            self.assertAlmostEqual(got, want, places=8)
+        self.assertAlmostEqual(fit.r2, HC1_R2, places=9)
+        self.assertAlmostEqual(fit.f_stat, HC1_F, places=5)
+        self.assertEqual(fit.dof, 8)          # n - k, no clusters
+
+    def test_cluster_matches_statsmodels(self):
+        fit = regress.ols(REG_Y, _reg_design(), REG_TERMS, clusters=REG_G)
+        for got, want in zip(fit.se, CLUSTER_SE):
+            self.assertAlmostEqual(got, want, places=8)
+        self.assertAlmostEqual(fit.f_stat, CLUSTER_F, places=5)
+        self.assertEqual(fit.clusters, 4)
+        self.assertEqual(fit.dof, 3)          # G - 1, not n - k
+
+    def test_wls_matches_statsmodels(self):
+        fit = regress.ols(REG_Y, _reg_design(), REG_TERMS, weights=REG_W)
+        for got, want in zip(fit.coef, WLS_COEF):
+            self.assertAlmostEqual(got, want, places=8)
+        for got, want in zip(fit.se, WLS_SE):
+            self.assertAlmostEqual(got, want, places=8)
+        # The weighted R^2 has to be taken about the WEIGHTED mean. Centring on
+        # the plain mean of the sqrt(w)-transformed values instead returns
+        # ~0.999 for any employment-weighted fit, which is why this is pinned.
+        self.assertAlmostEqual(fit.r2, WLS_R2, places=9)
+
+    def test_integer_weights_equal_duplicated_rows(self):
+        """Weighting a row by 3 has to be the same as listing it three times."""
+        X = _reg_design()
+        rep_y, rep_X = [], []
+        for i, w in enumerate(REG_W):
+            rep_y.extend([REG_Y[i]] * int(w))
+            rep_X.extend([X[i]] * int(w))
+        weighted = regress.ols(REG_Y, X, REG_TERMS, weights=REG_W)
+        expanded = regress.ols(rep_y, rep_X, REG_TERMS)
+        for got, want in zip(weighted.coef, expanded.coef):
+            self.assertAlmostEqual(got, want, places=9)
+        self.assertAlmostEqual(weighted.r2, expanded.r2, places=9)
+
+    def test_bivariate_reduces_to_closed_form(self):
+        fit = regress.ols(REG_Y, [[1.0, x] for x in REG_X1],
+                          ["(intercept)", "x1"])
+        mx = statistics.fmean(REG_X1)
+        my = statistics.fmean(REG_Y)
+        cov = sum((a - mx) * (b - my) for a, b in zip(REG_X1, REG_Y))
+        var = sum((a - mx) ** 2 for a in REG_X1)
+        self.assertAlmostEqual(fit.coef[1], cov / var, places=10)
+        self.assertAlmostEqual(fit.coef[0], my - (cov / var) * mx, places=10)
+        r = cov / (var * sum((b - my) ** 2 for b in REG_Y)) ** 0.5
+        self.assertAlmostEqual(fit.r2, r * r, places=10)
+
+    def test_within_transform_equals_dummy_variables(self):
+        """Occupation fixed effects by demeaning == the same fit with dummies."""
+        groups = sorted(set(REG_G))
+        d = regress.Design(
+            y=list(REG_Y),
+            X=[[1.0, a, b] for a, b in zip(REG_X1, REG_X2)],
+            terms=["(intercept)", "x1", "x2"],
+        )
+        demeaned = regress.within(d, REG_G)
+        fe = regress.fit_design(demeaned, name="fe", outcome="y")
+        dummies = [[a, b] + [1.0 if g == h else 0.0 for h in groups]
+                   for a, b, g in zip(REG_X1, REG_X2, REG_G)]
+        explicit = regress.ols(REG_Y, dummies,
+                               ["x1", "x2"] + [f"g_{g}" for g in groups],
+                               clusters=REG_G, has_intercept=False)
+        for got, want in zip(fe.coef, explicit.coef[:2]):
+            self.assertAlmostEqual(got, want, places=8)
+        for got, want in zip(fe.se, explicit.se[:2]):
+            self.assertAlmostEqual(got, want, places=8)
+        self.assertEqual(fe.absorbed, len(groups))
+
+    def test_singleton_clusters_collapse_to_hc1(self):
+        """One observation per cluster: CR1's correction becomes HC1's exactly."""
+        X = _reg_design()
+        hc1 = regress.ols(REG_Y, X, REG_TERMS)
+        singleton = regress.ols(REG_Y, X, REG_TERMS,
+                                clusters=list(range(len(REG_Y))))
+        for got, want in zip(singleton.se, hc1.se):
+            self.assertAlmostEqual(got, want, places=12)
+        self.assertNotEqual(singleton.dof, hc1.dof)   # but the dof still differ
+
+    def test_constant_regressor_is_named_not_buried(self):
+        X = [[1.0, x, 0.0] for x in REG_X1]
+        with self.assertRaises(ValueError) as caught:
+            regress.ols(REG_Y, X, ["(intercept)", "x1", "all_zero"])
+        self.assertIn("all_zero", str(caught.exception))
+        self.assertIn("constant", str(caught.exception))
+
+    def test_vif_flags_collinearity(self):
+        fit = regress.ols(REG_Y, _reg_design(), REG_TERMS)
+        self.assertIsNone(fit.vif[0])                      # the intercept
+        # x2 in the fixture is roughly a scaled x1, so its VIF is high on
+        # purpose - about 49 - and a near-exact copy has to score far higher.
+        self.assertGreater(fit.vif[1], 10)
+        near_duplicate = [[1.0, x, x + 1e-3 * i, c]
+                          for i, (x, c) in enumerate(zip(REG_X1, REG_X3))]
+        collinear = regress.ols(REG_Y, near_duplicate,
+                                ["(intercept)", "x1", "x1_copy", "x3"])
+        self.assertGreater(collinear.vif[1], 100)
+
+    def test_orthogonal_columns_have_unit_vif(self):
+        X = [[1.0, 1.0, 1.0], [1.0, 1.0, -1.0], [1.0, -1.0, 1.0],
+             [1.0, -1.0, -1.0]]
+        fit = regress.ols([1.0, 2.0, 3.0, 5.0], X, ["(intercept)", "a", "b"])
+        self.assertAlmostEqual(fit.vif[1], 1.0, places=10)
+        self.assertAlmostEqual(fit.vif[2], 1.0, places=10)
+
+    def test_p_values_against_textbook_critical_values(self):
+        self.assertAlmostEqual(regress.t_pvalue(2.228138852, 10), 0.05, places=8)
+        self.assertAlmostEqual(regress.t_critical(10), 2.228138852, places=8)
+        self.assertAlmostEqual(regress.f_pvalue(4.9646027, 1, 10), 0.05, places=7)
+        # F(1, df) is t(df) squared, exactly.
+        self.assertAlmostEqual(regress.f_pvalue(2.5 ** 2, 1, 17),
+                               regress.t_pvalue(2.5, 17), places=12)
+        self.assertAlmostEqual(regress.betainc(2.0, 3.0, 1.0), 1.0, places=12)
+        self.assertEqual(regress.betainc(2.0, 3.0, 0.0), 0.0)
+
+    def test_perfect_fit_and_zero_residual(self):
+        X = [[1.0, 1.0], [1.0, 2.0], [1.0, 3.0]]
+        fit = regress.ols([3.0, 5.0, 7.0], X, ["(intercept)", "x"])
+        self.assertAlmostEqual(fit.coef[1], 2.0, places=10)
+        self.assertAlmostEqual(fit.r2, 1.0, places=12)
+        self.assertAlmostEqual(fit.rmse, 0.0, places=10)
+
+    def test_refuses_more_parameters_than_rows(self):
+        with self.assertRaises(ValueError):
+            regress.ols([1.0, 2.0], [[1.0, 1.0], [1.0, 2.0]],
+                        ["(intercept)", "x"])
+
+
+class TestRegressionDesigns(unittest.TestCase):
+    ROWS = [
+        {"onet_soc_code": "15-0001.00", "susceptibility": 70.0,
+         "importance": 80.0, "job_zone": 4},
+        {"onet_soc_code": "15-0001.01", "susceptibility": 60.0,
+         "importance": 50.0, "job_zone": 4},
+        {"onet_soc_code": "29-0002.00", "susceptibility": 40.0,
+         "importance": "", "job_zone": 3},          # dropped: no importance
+        {"onet_soc_code": "29-0003.00", "susceptibility": 55.0,
+         "importance": 60.0, "job_zone": None},     # dropped: no job zone
+    ]
+
+    def _design(self):
+        return regress.design(
+            self.ROWS,
+            lambda r: regress._num(r.get("susceptibility")),
+            {"importance": lambda r: regress._num(r.get("importance")),
+             "job_zone": lambda r: regress._num(r.get("job_zone"))},
+            cluster=lambda r: regress._soc6(r["onet_soc_code"]))
+
+    def test_incomplete_rows_are_dropped_and_counted(self):
+        d = self._design()
+        self.assertEqual(len(d.y), 2)
+        self.assertEqual(d.dropped, 2)
+        self.assertEqual(d.terms, ["(intercept)", "importance", "job_zone"])
+
+    def test_clusters_collapse_detail_occupations_to_one_soc(self):
+        d = self._design()
+        self.assertEqual(d.clusters, ["15-0001", "15-0001"])
+
+    def test_soc6_strips_the_detail_suffix(self):
+        self.assertEqual(regress._soc6("15-2051.01"), "15-2051")
+        self.assertEqual(regress._soc6("15-2051"), "15-2051")
+
+    def test_within_subtracts_group_means_and_drops_intercept(self):
+        d = regress.Design(y=[10.0, 20.0, 40.0, 60.0],
+                           X=[[1.0, 1.0], [1.0, 3.0], [1.0, 5.0], [1.0, 9.0]],
+                           terms=["(intercept)", "x"])
+        out = regress.within(d, ["a", "a", "b", "b"])
+        self.assertEqual(out.terms, ["x"])
+        self.assertEqual(out.y, [-5.0, 5.0, -10.0, 10.0])
+        self.assertEqual([row[0] for row in out.X], [-1.0, 1.0, -2.0, 2.0])
+        self.assertEqual(out.absorbed, 2)
+        self.assertFalse(out.has_intercept)
+
+    def test_index_reliability_is_signal_over_total_variance(self):
+        rows = [{"susceptibility_mean": m, "susceptibility_sd": 1.0}
+                for m in range(10, 110, 5)]
+        out = regress.index_reliability(rows)
+        expected = 1.0 - 1.0 / statistics.variance([r["susceptibility_mean"]
+                                                    for r in rows])
+        self.assertAlmostEqual(out["reliability"], round(expected, 4), places=4)
+        self.assertIn("calibration", out["what_it_does_not_cover"])
+
+    def test_index_reliability_needs_a_sample(self):
+        self.assertIsNone(regress.index_reliability([]))
+
+    def test_build_reports_what_it_could_not_run(self):
+        report = regress.build({"occupation_susceptibility": [], "fits": []})
+        self.assertEqual(report["fits"], [])
+        self.assertEqual(len(report["skipped"]), 5)
+        self.assertTrue(any("fetch-descriptors" in s for s in report["skipped"]))
+
+    def test_nested_reports_both_directions(self):
+        X = [[1.0, a, b] for a, b in zip(REG_X1, REG_X2)]
+        out = regress.nested(REG_Y, X, ["(intercept)", "x1", "x2"], ["x2"])
+        self.assertEqual(out["dropped"], ["x2"])
+        self.assertGreater(out["r2_full"], out["r2_restricted"])
+        self.assertAlmostEqual(out["r2_gain"],
+                               out["r2_full"] - out["r2_restricted"], places=4)

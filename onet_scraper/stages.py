@@ -1109,3 +1109,31 @@ def run_uncertainty(settings: Settings, *, trials: int = 400) -> dict[str, Any]:
                  name, round(s["mean"]), round(s["p05"]), round(s["p95"]),
                  s["published"])
     return rep
+
+
+def run_regress(settings: Settings) -> dict[str, Any]:
+    """Run the multivariate fits on the already-built tables."""
+    from .regress import COEFFICIENT_COLUMNS, build, log_report
+
+    tables = {name: read_table(settings.out_dir, name) for name in (
+        "occupation_susceptibility", "occupation_indices", "external_benchmarks",
+        "soc_susceptibility", "task_susceptibility", "task_churn_occupations",
+        "occupation_uncertainty")}
+    if not tables["occupation_susceptibility"]:
+        raise SystemExit("no occupation_susceptibility - run the report stage first")
+
+    report = build(tables)
+    if not report["fits"]:
+        raise SystemExit("no specification had the tables it needs; see the "
+                         "skipped list from earlier stages")
+
+    rows = report["coefficient_rows"]
+    COLUMNS["regressions"] = COEFFICIENT_COLUMNS
+    write_csv(settings.out_dir / "regressions.csv", rows, COEFFICIENT_COLUMNS)
+    append_sqlite(settings.out_dir / "onet_stem.sqlite", {"regressions": rows})
+    (settings.out_dir / "regression_report.json").write_text(
+        json.dumps({k: v for k, v in report.items() if k != "coefficient_rows"},
+                   indent=2))
+
+    log_report(report)
+    return report

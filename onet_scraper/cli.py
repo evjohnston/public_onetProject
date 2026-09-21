@@ -46,6 +46,7 @@ from .stages import (
     run_uncertainty,
     run_scroller,
     run_score,
+    run_regress,
 )
 from . import baseline
 from .validate import log_report, validate
@@ -147,7 +148,7 @@ def build_parser() -> argparse.ArgumentParser:
         default="run",
         choices=["run", "fetch-stem", "fetch-occupations", "fetch-bulk",
                  "fetch-descriptors", "build", "validate", "network", "score",
-                 "report", "employment", "validate-external", "figures", "story", "churn", "pathways", "publish", "scenarios", "security", "validate-derived", "validate-doc", "smoke", "retest", "consolidate", "uncertainty",
+                 "report", "employment", "validate-external", "figures", "story", "churn", "pathways", "publish", "scenarios", "security", "validate-derived", "validate-doc", "smoke", "retest", "consolidate", "uncertainty", "regress",
                  "clean-cache"],
         help="which stage to run (default: run = all of them)",
     )
@@ -285,6 +286,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1 if report.get("failures") else 0
 
     client = make_client(settings)
+
+    if stage == "regress":
+        run_regress(settings)
+        return 0
 
     if stage == "churn":
         run_churn(settings, client)

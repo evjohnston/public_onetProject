@@ -772,7 +772,7 @@ The scroller's network layout is seeded, so the drawing is identical on every ru
 
 A full rebuild from scratch is `python -m onet_scraper --refresh` followed by the
 `score`, `report`, `employment`, `validate-external`, `pathways`, `churn`,
-`figures`, `story`, `security` and `publish` stages. 229 tests run in CI on
+`figures`, `story`, `security` and `publish` stages. 250 tests run in CI on
 Python 3.10 and 3.13, and a sixth job opens every published page in headless
 Chrome and asserts it rendered.
 

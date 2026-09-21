@@ -1,0 +1,57 @@
+fit,outcome,term,coef,std_error,t_stat,p_value,ci_low,ci_high,beta_std,vif,n,se_kind,clusters
+validity_descriptors,susceptibility,(intercept),72.13993,3.966646,18.187,2.66e-43,64.315075,79.964785,,,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors,susceptibility,bottleneck_creative_intelligence,0.152207,0.034011,4.475,1.32e-05,0.085114,0.219299,0.2309,1.59,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors,susceptibility,bottleneck_perception_manipulation,-0.198289,0.020213,-9.81,1.32e-18,-0.238162,-0.158415,-0.4373,1.77,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors,susceptibility,bottleneck_social_intelligence,-0.182973,0.029398,-6.224,3.08e-09,-0.240965,-0.124981,-0.3201,1.82,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors,susceptibility,collaboration,0.062894,0.049986,1.258,0.21,-0.035711,0.161498,0.0887,2.27,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors,susceptibility,responsibility_for_others,-0.146505,0.030008,-4.882,2.23e-06,-0.205702,-0.087309,-0.2612,2.29,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors,susceptibility,job_zone,-0.200488,0.629296,-0.319,0.75,-1.441878,1.040901,-0.0151,1.71,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_exposure,exposure,(intercept),58.33279,5.48974,10.626,5.91e-21,47.503384,69.162195,,,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_exposure,exposure,bottleneck_creative_intelligence,0.220632,0.045542,4.845,2.64e-06,0.130793,0.31047,0.272,1.59,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_exposure,exposure,bottleneck_perception_manipulation,-0.253847,0.023991,-10.581,7.98e-21,-0.301174,-0.206521,-0.4549,1.77,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_exposure,exposure,bottleneck_social_intelligence,-0.090757,0.037548,-2.417,0.0166,-0.164826,-0.016688,-0.129,1.82,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_exposure,exposure,collaboration,0.09584,0.063569,1.508,0.133,-0.02956,0.221239,0.1098,2.27,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_exposure,exposure,responsibility_for_others,-0.176214,0.039021,-4.516,1.11e-05,-0.25319,-0.099239,-0.2553,2.29,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_exposure,exposure,job_zone,2.083688,0.806025,2.585,0.0105,0.493673,3.673703,0.1273,1.71,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_anchoring,anchoring,(intercept),14.031328,3.174683,4.42,1.67e-05,7.768749,20.293908,,,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_anchoring,anchoring,bottleneck_creative_intelligence,-0.084253,0.028758,-2.93,0.00381,-0.140982,-0.027524,-0.1299,1.59,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_anchoring,anchoring,bottleneck_perception_manipulation,0.142254,0.020854,6.821,1.2e-10,0.101116,0.183392,0.3188,1.77,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_anchoring,anchoring,bottleneck_social_intelligence,0.275153,0.028149,9.775,1.66e-18,0.219626,0.330681,0.4892,1.82,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_anchoring,anchoring,collaboration,-0.029383,0.045875,-0.64,0.523,-0.11988,0.061114,-0.0421,2.27,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_anchoring,anchoring,responsibility_for_others,0.117126,0.030421,3.85,0.000162,0.057114,0.177137,0.2122,2.29,260,"cluster-robust (CR1), 189 clusters",189
+validity_descriptors_anchoring,anchoring,job_zone,2.486429,0.604561,4.113,5.84e-05,1.293834,3.679024,0.19,1.71,260,"cluster-robust (CR1), 189 clusters",189
+incremental_validity,human_gamma,(intercept),0.801903,0.338328,2.37,0.0195,0.131348,1.472458,,,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity,human_gamma,our_susceptibility,0.019403,0.000938,20.696,1.49e-39,0.017545,0.021261,0.7965,1.02,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity,human_gamma,frey_osborne,-0.013038,0.047714,-0.273,0.785,-0.107606,0.081529,-0.0158,1.27,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity,human_gamma,felten_raj_seamans,-0.066177,0.020602,-3.212,0.00173,-0.107008,-0.025345,-0.1492,1.25,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity,human_gamma,brynjolfsson_sml,-0.352882,0.107167,-3.293,0.00134,-0.565284,-0.14048,-0.1831,1.39,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity_beta,human_beta,(intercept),0.546194,0.273558,1.997,0.0484,0.004011,1.088378,,,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity_beta,human_beta,our_susceptibility,0.015047,0.000828,18.172,9.06e-35,0.013405,0.016688,0.7985,1.02,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity_beta,human_beta,frey_osborne,-0.039652,0.03059,-1.296,0.198,-0.100279,0.020976,-0.0623,1.27,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity_beta,human_beta,felten_raj_seamans,-0.047842,0.019342,-2.473,0.0149,-0.086178,-0.009507,-0.1394,1.25,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity_beta,human_beta,brynjolfsson_sml,-0.274294,0.080551,-3.405,0.000926,-0.433945,-0.114644,-0.184,1.39,150,"cluster-robust (CR1), 110 clusters",110
+incremental_validity_wider_sample,human_gamma,(intercept),0.303005,0.356703,0.849,0.397,-0.402173,1.008182,,,188,"cluster-robust (CR1), 142 clusters",142
+incremental_validity_wider_sample,human_gamma,our_susceptibility,0.018005,0.000862,20.887,5.36e-45,0.016301,0.019709,0.7895,1.06,188,"cluster-robust (CR1), 142 clusters",142
+incremental_validity_wider_sample,human_gamma,felten_raj_seamans,0.005409,0.018611,0.291,0.772,-0.031384,0.042203,0.0131,1.22,188,"cluster-robust (CR1), 142 clusters",142
+incremental_validity_wider_sample,human_gamma,brynjolfsson_sml,-0.262736,0.110111,-2.386,0.0184,-0.480419,-0.045054,-0.1301,1.21,188,"cluster-robust (CR1), 142 clusters",142
+wage_pricing,log_annual_mean_wage,(intercept),9.194404,0.313599,29.319,1.95e-72,8.575822,9.812986,,,194,heteroskedasticity-robust (HC1),
+wage_pricing,log_annual_mean_wage,exposure,0.01039,0.004298,2.417,0.0166,0.001912,0.018868,0.2657,3.17,194,heteroskedasticity-robust (HC1),
+wage_pricing,log_annual_mean_wage,anchoring,0.018451,0.004945,3.731,0.000252,0.008697,0.028206,0.4021,2.81,194,heteroskedasticity-robust (HC1),
+wage_pricing,log_annual_mean_wage,job_zone,0.230376,0.051642,4.461,1.39e-05,0.128511,0.33224,0.3934,1.93,194,heteroskedasticity-robust (HC1),
+wage_pricing_employment_weighted,log_annual_mean_wage,(intercept),9.382317,0.51115,18.355,5.94e-44,8.37406,10.390575,,,194,heteroskedasticity-robust (HC1),
+wage_pricing_employment_weighted,log_annual_mean_wage,exposure,0.015261,0.006196,2.463,0.0147,0.003038,0.027483,0.4506,4.46,194,heteroskedasticity-robust (HC1),
+wage_pricing_employment_weighted,log_annual_mean_wage,anchoring,0.006575,0.00707,0.93,0.354,-0.007372,0.020521,0.1866,4.47,194,heteroskedasticity-robust (HC1),
+wage_pricing_employment_weighted,log_annual_mean_wage,job_zone,0.241975,0.061434,3.939,0.000115,0.120794,0.363156,0.439,2.23,194,heteroskedasticity-robust (HC1),
+task_pooled,susceptibility,(intercept),87.845302,1.978449,44.401,1.19e-123,83.949549,91.741055,,,5453,"cluster-robust (CR1), 262 clusters",262
+task_pooled,susceptibility,importance,-0.377363,0.027255,-13.845,4.64e-33,-0.431031,-0.323694,-0.329,1.23,5453,"cluster-robust (CR1), 262 clusters",262
+task_pooled,susceptibility,is_supplemental,-7.192556,0.78558,-9.156,1.62e-17,-8.739438,-5.645674,-0.1713,1.23,5453,"cluster-robust (CR1), 262 clusters",262
+task_within_occupation,susceptibility,importance,-0.065399,0.018135,-3.606,0.000372,-0.101109,-0.02969,-0.0582,1.26,5453,"cluster-robust (CR1), 262 clusters",262
+task_within_occupation,susceptibility,is_supplemental,-2.983107,0.672864,-4.433,1.37e-05,-4.308041,-1.658174,-0.0817,1.26,5453,"cluster-robust (CR1), 262 clusters",262
+task_within_soc,susceptibility,importance,-0.074945,0.018133,-4.133,5.37e-05,-0.110714,-0.039177,-0.0673,1.26,5453,"cluster-robust (CR1), 190 clusters",190
+task_within_soc,susceptibility,is_supplemental,-3.092926,0.622749,-4.967,1.52e-06,-4.321357,-1.864495,-0.0858,1.26,5453,"cluster-robust (CR1), 190 clusters",190
+task_new_vs_established,susceptibility,is_new,-4.022168,1.596886,-2.519,0.0124,-7.166588,-0.877747,-0.0282,1.01,5510,"cluster-robust (CR1), 262 clusters",262
+task_new_vs_established,susceptibility,is_supplemental,-1.970346,0.606932,-3.246,0.00132,-3.165452,-0.77524,-0.054,1.01,5510,"cluster-robust (CR1), 262 clusters",262
+churn_realised,task_turnover_rate,(intercept),0.134206,0.060839,2.206,0.0291,0.013893,0.254519,,,175,"cluster-robust (CR1), 137 clusters",137
+churn_realised,task_turnover_rate,susceptibility,0.000966,0.000703,1.375,0.171,-0.000423,0.002356,0.0851,1.02,175,"cluster-robust (CR1), 137 clusters",137
+churn_realised,task_turnover_rate,years_since_review,-0.006838,0.002547,-2.684,0.00817,-0.011876,-0.001801,-0.2087,1.05,175,"cluster-robust (CR1), 137 clusters",137
+churn_realised,task_turnover_rate,log_tasks_at_first_review,-0.036618,0.019702,-1.859,0.0653,-0.075581,0.002345,-0.1049,1.05,175,"cluster-robust (CR1), 137 clusters",137

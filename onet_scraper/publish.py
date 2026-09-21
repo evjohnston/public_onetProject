@@ -251,7 +251,7 @@ footer a{{color:var(--ink)}}
     <a class="card" href="{REPO}/blob/main/METHODOLOGY.md">
       <p class="t">On GitHub</p>
       <p class="d">The same document as markdown, alongside the pipeline that produced
-      every figure in it, the 229 tests, and <code>manifest.json</code> with per-file row
+      every figure in it, the 250 tests, and <code>manifest.json</code> with per-file row
       counts and content hashes for each run.</p>
       <span class="go">View source &rarr;</span>
     </a>

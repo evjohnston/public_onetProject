@@ -19,6 +19,12 @@ Both are true. The occupation-level correlation answers "does a better-paid job
 tend to be safer"; the employment-weighted decile answers "are better-paid
 workers safer". Reporting only one of them would be a choice about which
 question to answer, so this module reports both.
+
+One thing a correlation cannot do, and the `regress` stage does: exposure and
+anchoring correlate at -0.64, so the near-zero wage/exposure correlation above
+is partly the two axes cancelling. Holding anchoring and Job Zone fixed, the
+exposure coefficient on log wage turns positive and significant - better-paid
+work is MORE exposed, conditionally. See `regress.wage_fits`.
 """
 
 from __future__ import annotations
